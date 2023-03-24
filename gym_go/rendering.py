@@ -65,13 +65,13 @@ def draw_grid(batch, delta, board_size, lower_grid_coord, upper_grid_coord):
         color_list.extend([0.3, 0.3, 0.3] * 4)  # black
         # label on the left
         pyglet.text.Label(str(i),
-                          font_name='Courier', font_size=11,
+                          font_name='Cambria', font_size=11,
                           x=lower_grid_coord - label_offset, y=left_coord,
                           anchor_x='center', anchor_y='center',
                           color=(0, 0, 0, 255), batch=batch)
         # label on the bottom
         pyglet.text.Label(str(i),
-                          font_name='Courier', font_size=11,
+                          font_name='Cambria', font_size=11,
                           x=left_coord, y=lower_grid_coord - label_offset,
                           anchor_x='center', anchor_y='center',
                           color=(0, 0, 0, 255), batch=batch)

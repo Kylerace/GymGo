@@ -215,10 +215,10 @@ def adj_data(state, action2d, player):
     neighbors = neighbor_deltas + action2d
     valid = (neighbors >= 0) & (neighbors < state.shape[1])
     valid = np.prod(valid, axis=1)
-    neighbors = neighbors[np.nonzero(valid)]
+    neighbors = neighbors[np.nonzero(valid)] #2d indices of every adjacent spot to the move (that isnt out of bounds)
 
-    opp_pieces = state[1 - player]
-    surrounded = (opp_pieces[neighbors[:, 0], neighbors[:, 1]] > 0).all()
+    opp_pieces = state[1 - player] #every enemy piece
+    surrounded = (opp_pieces[neighbors[:, 0], neighbors[:, 1]] > 0).all() #check if theres an opponent piece on every neighbor
 
     return neighbors, surrounded
 

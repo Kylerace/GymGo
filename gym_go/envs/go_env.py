@@ -15,11 +15,11 @@ class RewardMethod(Enum):
     REAL = 'real'
     HEURISTIC = 'heuristic'
 
-
 class GoEnv(gym.Env):
     metadata = {'render.modes': ['terminal', 'human']}
     govars = govars
     gogame = gogame
+    window = None
 
     def __init__(self, size, komi=0, reward_method='real'):
         '''
@@ -121,7 +121,12 @@ class GoEnv(gym.Env):
         """
 
         if self.game_ended():
-            return self.winning()
+            is_winning = self.winning()
+            if is_winning:
+                return is_winning
+            else:
+                return -1
+                
         else:
             return 0
 
@@ -157,7 +162,7 @@ class GoEnv(gym.Env):
             self.window.close()
             self.pyglet.app.exit()
 
-    def render(self, mode='terminal'):
+    def render(self, mode='terminal', wait_for_input = True):
         if mode == 'terminal':
             print(self.__str__())
         elif mode == 'human':
@@ -168,7 +173,11 @@ class GoEnv(gym.Env):
             screen = pyglet.canvas.get_display().get_default_screen()
             window_width = int(min(screen.width, screen.height) * 2 / 3)
             window_height = int(window_width * 1.2)
-            window = pyglet.window.Window(window_width, window_height)
+            window = None
+            if self.window:
+                window = self.window
+            else:
+                window = pyglet.window.Window(window_width, window_height)
 
             self.window = window
             self.pyglet = pyglet
@@ -209,6 +218,12 @@ class GoEnv(gym.Env):
                 # draw the pieces
                 rendering.draw_pieces(batch, lower_grid_coord, delta, piece_r, self.size, self.state_)
 
+                if not wait_for_input:
+                    #try:
+                    pyglet.app.exit()
+                    #except:
+                    #    pass
+
             @window.event
             def on_mouse_press(x, y, button, modifiers):
                 if button == mouse.LEFT:
@@ -217,7 +232,7 @@ class GoEnv(gym.Env):
                     x_coord = round(grid_x / delta)
                     y_coord = round(grid_y / delta)
                     try:
-                        self.window.close()
+                        #self.window.close()
                         pyglet.app.exit()
                         self.user_action = (x_coord, y_coord)
                     except:
@@ -226,15 +241,15 @@ class GoEnv(gym.Env):
             @window.event
             def on_key_press(symbol, modifiers):
                 if symbol == key.P:
-                    self.window.close()
+                    #self.window.close()
                     pyglet.app.exit()
                     self.user_action = None
                 elif symbol == key.R:
                     self.reset()
-                    self.window.close()
+                    #self.window.close()
                     pyglet.app.exit()
                 elif symbol == key.E:
-                    self.window.close()
+                    #self.window.close()
                     pyglet.app.exit()
                     self.user_action = -1
 

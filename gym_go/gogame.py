@@ -30,7 +30,6 @@ def batch_init_state(batch_size, board_size):
     batch_state = np.zeros((batch_size, govars.NUM_CHNLS, board_size, board_size))
     return batch_state
 
-
 def next_state(state, action1d, canonical=False):
     # Deep copy the state to modify
     state = np.copy(state)
@@ -56,7 +55,7 @@ def next_state(state, action1d, canonical=False):
         state[govars.PASS_CHNL] = 0
 
         # Assert move is valid
-        assert state[govars.INVD_CHNL, action2d[0], action2d[1]] == 0, ("Invalid move", action2d)
+        assert state[govars.INVD_CHNL, action2d[0], action2d[1]] == 0, ("In move", action2d)
 
         # Add piece
         state[player, action2d[0], action2d[1]] = 1
@@ -74,8 +73,9 @@ def next_state(state, action1d, canonical=False):
             if len(killed_group) == 1:
                 ko_protect = killed_group[0]
 
-    # Update invalid moves
-    state[govars.INVD_CHNL] = state_utils.compute_invalid_moves(state, player, ko_protect)
+    if passed == False:
+        # Update invalid moves, but not if we passed
+        state[govars.INVD_CHNL] = state_utils.compute_invalid_moves(state, player, ko_protect)
 
     # Switch turn
     state_utils.set_turn(state)
@@ -85,7 +85,6 @@ def next_state(state, action1d, canonical=False):
         state = canonical_form(state)
 
     return state
-
 
 def batch_next_states(batch_states, batch_action1d, canonical=False):
     # Deep copy the state to modify
@@ -409,48 +408,86 @@ def str(state):
 
     size = state.shape[1]
     board_str += '\t'
-    for i in range(size):
-        board_str += '{}'.format(i).ljust(2, ' ')
+    for b in range(2):
+        for i in range(size):
+            board_str += '{}'.format(i).ljust(2, ' ')
+        board_str += "\t"
+
     board_str += '\n'
+    
     for i in range(size):
-        board_str += '{}\t'.format(i)
-        for j in range(size):
-            if state[0, i, j] == 1:
-                board_str += '○'
-                if j != size - 1:
-                    if i == 0 or i == size - 1:
-                        board_str += '═'
+        for b in range(2):
+            board_str += '{}\t'.format(i)
+            for j in range(size):
+                if b == 0:
+                    if state[0, i, j] == 1:
+                        board_str += '○'
+                        if j != size - 1:
+                            if i == 0 or i == size - 1:
+                                board_str += '═'
+                            else:
+                                board_str += '─'
+                    elif state[1, i, j] == 1:
+                        board_str += '●'
+                        if j != size - 1:
+                            if i == 0 or i == size - 1:
+                                board_str += '═'
+                            else:
+                                board_str += '─'
                     else:
-                        board_str += '─'
-            elif state[1, i, j] == 1:
-                board_str += '●'
-                if j != size - 1:
-                    if i == 0 or i == size - 1:
-                        board_str += '═'
-                    else:
-                        board_str += '─'
-            else:
-                if i == 0:
-                    if j == 0:
-                        board_str += '╔═'
-                    elif j == size - 1:
-                        board_str += '╗'
-                    else:
-                        board_str += '╤═'
-                elif i == size - 1:
-                    if j == 0:
-                        board_str += '╚═'
-                    elif j == size - 1:
-                        board_str += '╝'
-                    else:
-                        board_str += '╧═'
+                        if i == 0:
+                            if j == 0:
+                                board_str += '╔═'
+                            elif j == size - 1:
+                                board_str += '╗'
+                            else:
+                                board_str += '╤═'
+                        elif i == size - 1:
+                            if j == 0:
+                                board_str += '╚═'
+                            elif j == size - 1:
+                                board_str += '╝'
+                            else:
+                                board_str += '╧═'
+                        else:
+                            if j == 0:
+                                board_str += '╟─'
+                            elif j == size - 1:
+                                board_str += '╢'
+                            else:
+                                board_str += '┼─'
                 else:
-                    if j == 0:
-                        board_str += '╟─'
-                    elif j == size - 1:
-                        board_str += '╢'
+                    if state[govars.INVD_CHNL, i, j] == 1:
+                        board_str += 'X'
+                        if j != size - 1:
+                            if i == 0 or i == size - 1:
+                                board_str += '═'
+                            else:
+                                board_str += '─'
                     else:
-                        board_str += '┼─'
+                        if i == 0:
+                            if j == 0:
+                                board_str += '╔═'
+                            elif j == size - 1:
+                                board_str += '╗'
+                            else:
+                                board_str += '╤═'
+                        elif i == size - 1:
+                            if j == 0:
+                                board_str += '╚═'
+                            elif j == size - 1:
+                                board_str += '╝'
+                            else:
+                                board_str += '╧═'
+                        else:
+                            if j == 0:
+                                board_str += '╟─'
+                            elif j == size - 1:
+                                board_str += '╢'
+                            else:
+                                board_str += '┼─'
+
+            #board_str += "\t"
         board_str += '\n'
 
     black_area, white_area = areas(state)
