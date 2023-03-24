@@ -1,6 +1,5 @@
 # About
-An environment for the board game Go. It is implemented using OpenAI's Gym API. 
-It is also optimized to be as efficient as possible in order to efficiently train ML models.
+A fork of https://github.com/aigagror/GymGo containing changes convenient for my implementation of the AlphaGo Zero paper. 
 
 # Installation
 ```bash
