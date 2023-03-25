@@ -58,7 +58,7 @@ go_env.render('terminal')
 # Defaults to a uniform random AI opponent.
 python3 demo.py
 ```
-![alt text](screenshots/human_ui.png)
+![alt text](human_ui.png)
 
 ### High level API
 [GoEnv](gym_go/envs/go_env.py) defines the Gym environment for Go. 
